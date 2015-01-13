@@ -5,10 +5,11 @@ import argparse
 
 class FaceDetector(object):
 
-    def __init__(self, head_cascade_path, eye_cascade_path, debug=False):
+    def __init__(self, head_cascade_path, eye_cascade_path, nose_cascade_path, debug=False):
 
         self.face_cascade = cv2.CascadeClassifier(head_cascade_path)
         self.eye_cascade = cv2.CascadeClassifier(eye_cascade_path)
+        self.nose_cascade = cv2.CascadeClassifier(nose_cascade_path)
         self.debug =debug
         self.cap = cv2.VideoCapture(0)
 
@@ -30,22 +31,34 @@ class FaceDetector(object):
             self.eyes[face] = self.eye_cascade.detectMultiScale(roi_gray)
         return self.eyes
 
+    def get_nose(self):
+        self.noses = {}
+        for (x, y, w, h) in self.faces:
+            face = (x, y, w, h)
+            roi_gray = self.gray[y : y + h, x : x + w]
+            self.roi_color = self.frame[y : y + h, x : x + w]
+            self.noses[face] = self.nose_cascade.detectMultiScale(roi_gray)
+        return self.noses
+
     def show_debug(self):
         for (x, y, w, h) in self.faces:
             face = (x, y, w, h)
             for (ex, ey, ew, eh) in self.eyes[face]:
                 cv2.rectangle(self.roi_color, (ex, ey), (ex + ew, ey + eh), (0, 255, 0), 2)
             cv2.rectangle(self.frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
+            for (ex, ey, ew, eh) in self.noses[face]:
+                cv2.rectangle(self.roi_color, (ex, ey), (ex + ew, ey + eh), (0, 0, 255), 2)
         cv2.imshow('frame', self.frame)
 
     def update(self):
         self.get_frame()
         self.get_faces()
         self.get_eyes()
+        self.get_nose()
         if self.debug:
             self.show_debug()
 
-        return (self.faces, self.eyes)
+        return (self.faces, self.eyes, self.noses)
 
 
 def main():
