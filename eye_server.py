@@ -26,6 +26,7 @@ def main():
 
     while(1):
         faces, eyes, noses = face_detector.update()
+        
         n += 1
         if n%10 == 0:
             frame_process.get_head_angle(faces, eyes, noses)

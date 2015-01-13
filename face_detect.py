@@ -50,6 +50,20 @@ class FaceDetector(object):
                 cv2.rectangle(self.roi_color, (ex, ey), (ex + ew, ey + eh), (0, 0, 255), 2)
         cv2.imshow('frame', self.frame)
 
+    def get_face_strucutre(self):
+        if self.faces is not None:
+            for (x, y, w, h) in self.faces:
+                face = (x, y, w, h)
+                if self.eyes[face] is not bool and self.noses[face] is not bool and len(self.eyes[face]) > 1 and len(self.noses[face]) > 0:
+                    eyes = [(eye[0], eye[1], eye[2], eye[3]) for eye in self.eyes[face]]
+                    left_eye = min(self.eyes, key=lambda item:item[0])
+                    right_eye = max(self.eyes, key=lambda item:item[0])
+                    nose = min(self.noses[face], key=lambda item:item[1])
+                    nose = (nose[0], nose[1],
+                            nose[2], nose[2])
+                    return(left_eye, right_eye, nose)
+        return (None, None, None)
+
     def update(self):
         self.get_frame()
         self.get_faces()
