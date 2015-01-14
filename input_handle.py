@@ -4,4 +4,6 @@ import zmq
 import argparse
 
 def map_input(input):
-    pass
+    if input == None:
+        return "None"
+    return input

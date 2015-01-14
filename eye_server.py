@@ -22,15 +22,19 @@ def main():
 
     face_detector = face_detect.FaceDetector(args.head_cascade, args.eye_cascade, args.nose_cascade, args.debug)
     frame_process = frame_processor.FrameProcessor()
+
+    server = message_server.MessageServer(args.port)
+
     n = 0
 
     while(1):
         faces, eyes, noses = face_detector.update()
-        
-        n += 1
-        if n%10 == 0:
-            frame_process.get_head_angle(faces, eyes, noses)
 
+        n += 1
+        if n % 10 == 0:
+            head_angle = frame_process.get_head_angle(faces, eyes, noses)
+            input_wrapper = input_handle.map_input(head_angle)
+            server.send(str(input_wrapper))
         k = cv2.waitKey(5) & 0xFF
         if k == 27:
             break
